@@ -19,7 +19,7 @@ func New() fsm.Store {
 			os.Getenv("DYNAMO_ACCESS_KEY_ID"),
 			os.Getenv("DYNAMO_SECRET_ACCESS_KEY"),
 		),
-		tableName: os.Getenv("DYNAMO_TABLE"),
+		tableName: os.Getenv("DYNAMO_TABLE_NAME"),
 	}
 }
 

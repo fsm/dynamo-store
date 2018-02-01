@@ -12,7 +12,7 @@ When using this store, you must set four environment variables:
 DYNAMO_REGION=""
 DYNAMO_ACCESS_KEY_ID=""
 DYNAMO_SECRET_ACCESS_KEY=""
-DYNAMO_TABLE=""
+DYNAMO_TABLE_NAME=""
 ```
 
 ## Getting Started
