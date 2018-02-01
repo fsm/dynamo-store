@@ -4,6 +4,32 @@
 
 This package is a [DynamoDB](https://aws.amazon.com/dynamodb) implementation of a [fsm](https://github.com/fsm/fsm).[Store](https://github.com/fsm/fsm/blob/master/fsm.go#L26-L29).
 
-# License
+## Environment Variables
+
+When using this store, you must set four environment variables:
+
+```sh
+DYNAMO_REGION=""
+DYNAMO_ACCESS_KEY_ID=""
+DYNAMO_SECRET_ACCESS_KEY=""
+DYNAMO_TABLE=""
+```
+
+## Getting Started
+
+> Note: The environment variables above are assumed to be set in this example code:
+
+```go
+package main
+
+import "github.com/fsm/dynamo-store"
+
+func main() {
+    store := dynamostore.New()
+    // ...
+}
+```
+
+## License
 
 [MIT](LICENSE.md)
