@@ -9,7 +9,6 @@ import (
 )
 
 type dynamoTraverser struct {
-	network       string
 	uuid          string
 	currentState  string
 	dynamoSession *dynamodb.DynamoDB
@@ -34,9 +33,6 @@ func (d *dynamoTraverser) SetUUID(newUUID string) {
 				},
 			},
 			Key: map[string]*dynamodb.AttributeValue{
-				"network": {
-					S: aws.String(d.network),
-				},
 				"uuid": {
 					S: aws.String(d.uuid),
 				},
@@ -67,9 +63,6 @@ func (d *dynamoTraverser) SetCurrentState(state string) {
 				},
 			},
 			Key: map[string]*dynamodb.AttributeValue{
-				"network": {
-					S: aws.String(d.network),
-				},
 				"uuid": {
 					S: aws.String(d.uuid),
 				},
@@ -101,9 +94,6 @@ func (d *dynamoTraverser) Upsert(key string, value interface{}) error {
 				":v": item,
 			},
 			Key: map[string]*dynamodb.AttributeValue{
-				"network": {
-					S: aws.String(d.network),
-				},
 				"uuid": {
 					S: aws.String(d.uuid),
 				},
@@ -141,9 +131,6 @@ func (d *dynamoTraverser) Delete(key string) error {
 				"#K": aws.String(key),
 			},
 			Key: map[string]*dynamodb.AttributeValue{
-				"network": {
-					S: aws.String(d.network),
-				},
 				"uuid": {
 					S: aws.String(d.uuid),
 				},

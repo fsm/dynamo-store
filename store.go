@@ -2,6 +2,7 @@ package dynamostore
 
 import (
 	"errors"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 
@@ -10,25 +11,33 @@ import (
 	"github.com/fsm/fsm"
 )
 
-type DynamoStore struct {
-	DynamoSession *dynamodb.DynamoDB
-	DynamoTable   string
-	Network       string
+// New returns an instance of a dynamoStore
+func New() fsm.Store {
+	return &dynamoStore{
+		session: getDynamoSession(
+			os.Getenv("DYNAMO_REGION"),
+			os.Getenv("DYNAMO_ACCESS_KEY_ID"),
+			os.Getenv("DYNAMO_SECRET_ACCESS_KEY"),
+		),
+		tableName: os.Getenv("DYNAMO_TABLE"),
+	}
 }
 
-func (d *DynamoStore) FetchTraverser(uuid string) (fsm.Traverser, error) {
+type dynamoStore struct {
+	session   *dynamodb.DynamoDB
+	tableName string
+}
+
+func (d *dynamoStore) FetchTraverser(uuid string) (fsm.Traverser, error) {
 	// Fetch Item
-	result, err := d.DynamoSession.GetItem(
+	result, err := d.session.GetItem(
 		&dynamodb.GetItemInput{
 			Key: map[string]*dynamodb.AttributeValue{
-				"network": {
-					S: aws.String(d.Network),
-				},
 				"uuid": {
 					S: aws.String(uuid),
 				},
 			},
-			TableName: aws.String(d.DynamoTable),
+			TableName: aws.String(d.tableName),
 		},
 	)
 	// Checking for errors with the request
@@ -51,23 +60,19 @@ func (d *DynamoStore) FetchTraverser(uuid string) (fsm.Traverser, error) {
 
 	// Create Traverser
 	return &dynamoTraverser{
-		network:       d.Network,
 		uuid:          uuid,
 		currentState:  *result.Item["currentState"].S,
-		dynamoSession: d.DynamoSession,
-		dynamoTable:   d.DynamoTable,
+		dynamoSession: d.session,
+		dynamoTable:   d.tableName,
 		dynamoData:    data,
 	}, nil
 }
 
-func (d *DynamoStore) CreateTraverser(uuid string) (fsm.Traverser, error) {
+func (d *dynamoStore) CreateTraverser(uuid string) (fsm.Traverser, error) {
 	// Create element in Dynamo
-	_, err := d.DynamoSession.PutItem(
+	_, err := d.session.PutItem(
 		&dynamodb.PutItemInput{
 			Item: map[string]*dynamodb.AttributeValue{
-				"network": {
-					S: aws.String(d.Network),
-				},
 				"uuid": {
 					S: aws.String(uuid),
 				},
@@ -75,7 +80,7 @@ func (d *DynamoStore) CreateTraverser(uuid string) (fsm.Traverser, error) {
 					M: make(map[string]*dynamodb.AttributeValue, 0),
 				},
 			},
-			TableName: aws.String(d.DynamoTable),
+			TableName: aws.String(d.tableName),
 		},
 	)
 	if err != nil {
@@ -84,10 +89,9 @@ func (d *DynamoStore) CreateTraverser(uuid string) (fsm.Traverser, error) {
 
 	// Create Traverser
 	return &dynamoTraverser{
-		network:       d.Network,
 		uuid:          uuid,
-		dynamoSession: d.DynamoSession,
-		dynamoTable:   d.DynamoTable,
+		dynamoSession: d.session,
+		dynamoTable:   d.tableName,
 		dynamoData:    make(map[string]interface{}, 0),
 	}, nil
 }
